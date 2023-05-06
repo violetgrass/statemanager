@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <PackageProjectUrl>https://github.com/violetgrass/statemanager</PackageProjectUrl>
+        <Description>A general purpose reactive state manager</Description>
+        <PackageTags>state manager, state store, store, reactive</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>Git</RepositoryType>
+        <RepositoryUrl>https://github.com/violetgrass/statemanager</RepositoryUrl>
+    </PropertyGroup>
+</Project>
