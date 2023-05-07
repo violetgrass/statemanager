@@ -16,6 +16,7 @@ Violet.StateManager is a redux oriented general purpose .NET state manager. It t
 - API is **not opionated** and uses functions and inheritance free types. This allows your model to evolve freely without constraints by the state manager library.
 - Management of **Sub States** allowing to define a more efficient management of reducers and simpler code in them.
 - Simple **async/await** support throughout the whole API surface.
+- Support for ILogger if needed.
 
 ## Example
 
@@ -46,10 +47,26 @@ Integrate into your app and trigger events ...
 // announce when something happens (dispatch an action)
 var changedChange = await state.DispatchAsync(new DeleteA());
 
-// => changedState.A == ""
 ````
 
-Incorperate the changed state using the resulting change or observe it using `IObservable`.
+... and incorperate the changed state using the resulting change or observe it using `IObservable`.
+
+````csharp
+// use changedState from sample above 
+if (changedState.A == string.Empty) { Console.WriteLine("Success, Library works"); }
+
+// ... OR (registered before the dispatch) ...
+
+using var disposable = state.Observable.Subscribe(state => /* do something with it */)
+````
+
+You can also integrate an effect to do side effects on state changes and dispatched actions
+
+````csharp
+state.Registration.OnChange(async (state, action) => /* do something with it */);
+````
+
+🚧 Asynchronous Action / Effects with return Actions is planned #1. Until then use the state manager directly to dispatch the result.
 
 ## Alternatives
 
