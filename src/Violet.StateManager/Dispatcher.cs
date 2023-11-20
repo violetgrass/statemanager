@@ -114,12 +114,12 @@ public class Dispatcher<TState> : Dispatcher
             if (reducer is AsyncStateReducer<TCurrentState> asyncReducer && asyncReducer.ForAction(action))
             {
                 _logger?.LogInformation($"Invoking asynchronous Reducer");
-                intermediateState = await asyncReducer.FunctionInternalAsync(intermediateState, action);
+                (intermediateState, _) = await asyncReducer.FunctionInternalAsync(intermediateState, action);
             }
             if (reducer is SyncStateReducer<TCurrentState> syncReducer && syncReducer.ForAction(action))
             {
                 _logger?.LogInformation($"Invoking synchronous Reducer");
-                intermediateState = syncReducer.FunctionInternal(intermediateState, action);
+                (intermediateState, _) = syncReducer.FunctionInternal(intermediateState, action);
             }
         }
 
