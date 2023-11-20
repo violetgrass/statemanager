@@ -35,17 +35,17 @@ Setup your state manager and define how the state is changed
 using Violet.StateManager;
 
 // define, initialize and setup your state to be managed
-var state = new StateStore<MyState>(new MyState("a", "b"));
+var store = new StateStore<MyState>(new MyState("a", "b"));
 
 // register how state is changed when something happens (define a reducer)
-state.Registration.On<DeleteA>(async (state, action) => state with { A = string.Empty });
+store.Registration.On<DeleteA>(async (state, action) => state with { A = string.Empty });
 ````
 
 Integrate into your app and trigger events ...
 
 ````csharp
 // announce when something happens (dispatch an action)
-var changedChange = await state.DispatchAsync(new DeleteA());
+var changedState = await store.DispatchAsync(new DeleteA());
 
 ````
 
@@ -57,13 +57,13 @@ if (changedState.A == string.Empty) { Console.WriteLine("Success, Library works"
 
 // ... OR (registered before the dispatch) ...
 
-using var disposable = state.Observable.Subscribe(state => /* do something with it */)
+using var disposable = store.Observable.Subscribe(state => /* do something with it */)
 ````
 
 You can also integrate an effect to do side effects on state changes and dispatched actions
 
 ````csharp
-state.Registration.OnChange(async (state, action) => /* do something with it */);
+store.Registration.OnChange(async (state, action) => /* do something with it */);
 ````
 
 🚧 Asynchronous Action / Effects with return Actions is planned #1. Until then use the state manager directly to dispatch the result.
