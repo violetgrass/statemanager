@@ -33,6 +33,21 @@ public partial class StateStore<TState>
 
     public async Task<TState> DispatchAsync<TAction>(TAction action)
         where TAction : class
+        => await DispatchAsync((object)action);
+
+    public async Task<TState> DispatchAsync(params object[] actions)
+    {
+        TState result = _state;
+
+        foreach (var action in actions)
+        {
+            result = await DispatchAsync(action);
+        }
+
+        return result;
+    }
+
+    public async Task<TState> DispatchAsync(object action)
     {
         _logger?.LogInformation($"Enqueue action {action.GetType().Name}");
         _actionQueue.Enqueue(action);

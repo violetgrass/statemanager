@@ -62,8 +62,8 @@ public class SubStateTest
         await stateStore.DispatchAsync(new SubAction1(1, "c1", "d1"));
 
         // assert
-        Assert.Equal(stateStore.State.A, "1");
-        Assert.Equal(stateStore.State.B[1].C, "c1");
+        Assert.Equal("1", stateStore.State.A);
+        Assert.Equal("c1", stateStore.State.B[1].C);
     }
 
     [Fact]
@@ -77,8 +77,8 @@ public class SubStateTest
         await stateStore.DispatchAsync(new SubAction1(1, "c1", "d1"));
 
         // assert
-        Assert.Equal(stateStore.State.A, "1");
-        Assert.Equal(stateStore.State.B[1].C, "c1");
+        Assert.Equal("1", stateStore.State.A);
+        Assert.Equal("c1", stateStore.State.B[1].C);
     }
 
 }
