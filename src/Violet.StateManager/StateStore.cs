@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
+using System.Reflection.PortableExecutable;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,10 +14,10 @@ public partial class StateStore<TState>
 
     public TState State => _state;
 
-    private BehaviorSubject<TState> _observable;
+    private readonly BehaviorSubject<TState> _observable;
     public IObservable<TState> Observable => _observable;
 
-    private ConcurrentQueue<object> _actionQueue = new();
+    private readonly ConcurrentQueue<object> _actionQueue = new();
     private bool _isDispatching = false;
 
     public StateStore(TState initialState, ILogger? logger = null)
@@ -82,19 +83,34 @@ public partial class StateStore<TState>
         IReducerRegistration<TSubState> registration)
         where TSubState : class
     {
-        var dispatcher = new Dispatcher<TSubState>(registration, a => keySelector(a), (s, k) => subStateSelector(s as TState, (TKey)k), async (s, k, ss) => await subStateReducer(s as TState, (TKey)k, ss as TSubState), _logger);
+        var dispatcher = new Dispatcher<TSubState>(registration, a => keySelector(a), (s, k) => subStateSelector((s as TState)!, (TKey)k)!, async (s, k, ss) => await subStateReducer((s as TState)!, (TKey)k, (ss as TSubState)!), _logger);
 
         Dispatcher.SubDispatchers.Add(dispatcher);
     }
 
+    public void SubState<TSubState, TKey>(
+        Func<object, TKey> keySelector,
+        Func<TState, TKey, TSubState?> subStateSelector,
+        Func<TState, TKey, TSubState, TState> subStateReducer,
+        IReducerRegistration<TSubState> registration)
+        where TSubState : class
+        => SubState<TSubState, TKey>(keySelector, subStateSelector, (state, key, subState) => Task.FromResult(subStateReducer(State, key, subState)), registration);
+
     public IReducerRegistration<TSubState> SubState<TSubState, TKey>(
         Func<object, TKey> keySelector,
-        Func<TState, TKey, TSubState> subStateSelector,
+        Func<TState, TKey, TSubState?> subStateSelector,
+        Func<TState, TKey, TSubState, TState> subStateReducer)
+        where TSubState : class
+        => SubState(keySelector, subStateSelector, (state, key, subState) => Task.FromResult(subStateReducer(State, key, subState)));
+
+    public IReducerRegistration<TSubState> SubState<TSubState, TKey>(
+        Func<object, TKey> keySelector,
+        Func<TState, TKey, TSubState?> subStateSelector,
         Func<TState, TKey, TSubState, Task<TState>> subStateReducer)
         where TSubState : class
     {
         var reducers = new ReducerRegistration<TSubState>();
-        var dispatcher = new Dispatcher<TSubState>(reducers, a => keySelector(a), (s, k) => subStateSelector(s as TState, (TKey)k), async (s, k, ss) => await subStateReducer(s as TState, (TKey)k, ss as TSubState), _logger);
+        var dispatcher = new Dispatcher<TSubState>(reducers, a => keySelector(a), (s, k) => subStateSelector((s as TState)!, (TKey)k), async (s, k, ss) => await subStateReducer((s as TState)!, (TKey)k, (ss as TSubState)!), _logger);
 
         Dispatcher.SubDispatchers.Add(dispatcher);
 

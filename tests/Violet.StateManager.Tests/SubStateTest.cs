@@ -33,7 +33,7 @@ public class SampleStateStore : StateStore<SampleState>
         SubState<SampleSubState, int?>(
             action => (action as SubAction1)?.Key,
             (state, key) => state.B[key.Value],
-            async (state, key, subState) => { state.B[key.Value] = subState; return state; },
+            (state, key, subState) => { state.B[key.Value] = subState; return state; },
             new SampleSubStateStore(null).Registration
         );
     }
@@ -54,7 +54,7 @@ public class SubStateTest
         stateStore.SubState<SampleSubState, int?>(
             action => (action as SubAction1)?.Key,
             (state, key) => state.B[key.Value],
-            async (state, key, subState) => { state.B[key.Value] = subState; return state; })
+            (state, key, subState) => { state.B[key.Value] = subState; return state; })
             .On<SubAction1>((s, a) => s with { C = a.C, D = a.D });
 
         // act

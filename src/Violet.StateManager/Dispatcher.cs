@@ -14,12 +14,12 @@ public class Dispatcher<TState> : Dispatcher
     where TState : class
 {
     public List<Dispatcher> SubDispatchers { get; } = new();
-    private Func<object, object?>? _keySelector = null;
-    private Func<object, object, object>? _subStateSelector = null;
-    private Func<object, object, object, Task<object>>? _subStateReducer = null;
+    private readonly Func<object, object?>? _keySelector;
+    private readonly Func<object, object, object?>? _subStateSelector;
+    private readonly Func<object, object, object, Task<object>>? _subStateReducer;
     private readonly ILogger? _logger;
 
-    public Dispatcher(IReducerRegistration<TState> registration, Func<object, object?>? keySelector = null, Func<object, object, object>? subStateSelector = null, Func<object, object, object, Task<object>>? subStateReducer = null, ILogger? logger = null)
+    public Dispatcher(IReducerRegistration<TState> registration, Func<object, object?>? keySelector = null, Func<object, object, object?>? subStateSelector = null, Func<object, object, object, Task<object>>? subStateReducer = null, ILogger? logger = null)
     {
         Registration = registration;
         _keySelector = keySelector;
@@ -66,7 +66,7 @@ public class Dispatcher<TState> : Dispatcher
             // regular local reducer
             if (SupportsReducerForAction(action) || HasEffects())
             {
-                currentState = await ReduceAsync<TState, TAction>(currentState as TState, action, Registration.Reducers);
+                currentState = await ReduceAsync<TState, TAction>((currentState as TState)!, action, Registration.Reducers);
             }
             else
             {
@@ -99,7 +99,7 @@ public class Dispatcher<TState> : Dispatcher
 
     public async Task<TState> DispatchAsync<TAction>(TState state, TAction action)
         where TAction : class
-        => await this.DispatchAsync<TAction>(state as object, action) as TState;
+        => (await DispatchAsync<TAction>(state as object, action) as TState)!;
 
     public async Task<TCurrentState> ReduceAsync<TCurrentState, TAction>(TCurrentState state, TAction action, IEnumerable<StateReducer> reducers)
         where TAction : class

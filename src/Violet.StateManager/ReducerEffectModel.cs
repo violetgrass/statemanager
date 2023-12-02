@@ -7,10 +7,10 @@ public abstract record SyncStateReducer<TState>(Predicate<object> ForAction, Fun
     : StateReducer(ForAction);
 
 public record AsyncStateReducer<TState, TAction>(Func<TState, TAction, Task<TState>> FunctionAsync)
-    : AsyncStateReducer<TState>(action => action is TAction, async (state, action) => await FunctionAsync(state, action as TAction))
+    : AsyncStateReducer<TState>(action => action is TAction, async (state, action) => await FunctionAsync(state, (action as TAction)!))
     where TAction : class;
 public record SyncStateReducer<TState, TAction>(Func<TState, TAction, TState> Function)
-    : SyncStateReducer<TState>(action => action is TAction, (state, action) => Function(state, action as TAction))
+    : SyncStateReducer<TState>(action => action is TAction, (state, action) => Function(state, (action as TAction)!))
     where TAction : class;
 
 public record StateEffect();
